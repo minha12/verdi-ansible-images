@@ -1,0 +1,23 @@
+- name: Add NVIDIA package repository key
+  get_url:
+    url: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb
+    dest: /tmp/cuda-keyring.deb
+
+- name: Install CUDA keyring package
+  apt:
+    deb: /tmp/cuda-keyring.deb
+    state: present
+
+- name: Update apt repository cache
+  apt:
+    update_cache: yes
+
+- name: Install CUDA Toolkit
+  apt:
+    name: cuda-toolkit-12-4
+    state: present
+
+- name: Remove temporary CUDA keyring package
+  file:
+    path: /tmp/cuda-keyring.deb
+    state: absent

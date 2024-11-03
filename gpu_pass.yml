@@ -1,0 +1,5 @@
+- name: Deploy Ubuntu Cloud Image and Set Up VM
+  hosts: localhost
+  become: true
+  roles:
+    - passthrough

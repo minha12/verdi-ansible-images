@@ -1,11 +1,6 @@
 - name: Deploy Ubuntu Cloud Image and Set Up VM
   hosts: localhost
   become: true
-  roles:
-    #- download_image
-    #- configure_cloud_init_iso
-    #- create_vm
-    - probing_vm
   vars:
     vm_name: "vm01"
     interface: "ens3"
@@ -17,3 +12,18 @@
     vm_username: "ubuntu"
     vm_password: "ubuntu"
     download_image: true
+  roles:
+    - download_image
+    - configure_cloud_init_iso
+    - create_vm
+    - probing_vm
+
+- name: Configure and Install Software on VM
+  hosts: vm01
+  become: true
+  gather_facts: true
+  roles:
+    - install_xfce
+    - install_vnc
+    - install_miniforge
+    - install_cuda

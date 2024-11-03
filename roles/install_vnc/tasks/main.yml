@@ -1,0 +1,22 @@
+- name: Install TightVNC server
+  apt:
+    name: tightvncserver
+    state: present
+
+- name: Create VNC directory structure
+  file:
+    path: "/home/ubuntu/.vnc"
+    state: directory
+    mode: '0700'
+
+- name: Copy initial xstartup file for VNC
+  copy:
+    dest: "/home/ubuntu/.vnc/xstartup"
+    content: |
+      #!/bin/sh
+      unset SESSION_MANAGER
+      unset DBUS_SESSION_BUS_ADDRESS
+      startxfce4 &
+    mode: '0755'
+    owner: ubuntu
+    group: ubuntu

@@ -1,0 +1,39 @@
+---
+
+- name: Set up our prefer kernel command line
+  ansible.builtin.lineinfile:
+    path: /etc/default/grub
+    state: present
+    line: >-
+      GRUB_CMDLINE_LINUX="modprobe.blacklist=nouveau,nvidia,nvidia_drm
+      rd.driver.blacklist=nouveau,nvidia,nvidia_drm
+      nouveau.modeset=0 intel_iommu=on iommu=pt"
+    regexp: '#*\s*GRUB_CMDLINE_LINUX=.*'
+  notify:
+    - Update grub
+
+- name: Setup vfio-pci options
+  ansible.builtin.copy:
+    dest: "/etc/modprobe.d/gpu-passthrough.conf"
+    content: |
+      # Ansible managed, don't edit here
+      options vfio-pci ids=10de:26b9,10de:27b8
+
+    mode: "0o644"
+    group: root
+    owner: root
+
+- name: Setup vfio-pci to be load on boot
+  ansible.builtin.copy:
+    dest: "/etc/modules-load.d/gpu-passthrough.conf"
+    content: |
+      # Ansible managed, don't edit here
+      vfio-pci
+
+    mode: "0o644"
+    group: root
+    owner: root
+
+- name: Reboot the system
+  ansible.builtin.reboot:
+    reboot_timeout: 600

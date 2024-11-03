@@ -1,0 +1,47 @@
+- name: Check if Miniforge is already installed
+  stat:
+    path: "$HOME/miniforge3"
+  environment:
+    HOME: "/home/ubuntu"
+  register: miniforge_installed
+
+- name: Print the Miniforge download URL for debugging
+  debug:
+    msg: "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-{{ ansible_system | lower }}-{{ ansible_architecture }}.sh"
+
+- name: Download Miniforge installer
+  get_url:
+    #url: "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
+    url: "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-{{ ansible_system | lower }}-{{ ansible_architecture }}.sh" 
+    dest: /tmp/Miniforge3.sh
+
+- name: Install Miniforge
+  command: bash /tmp/Miniforge3.sh -b -p $HOME/miniforge3
+  environment:
+    HOME: "/home/ubuntu"
+  when: not miniforge_installed.stat.exists
+
+- name: Update .bashrc to initialize Conda
+  blockinfile:
+    path: /home/ubuntu/.bashrc
+    block: |
+      # >>> conda initialize >>>
+      # !! Contents within this block are managed by 'conda init' !!
+      __conda_setup="$('$HOME/miniforge3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+      if [ $? -eq 0 ]; then
+          eval "$__conda_setup"
+      else
+          if [ -f "$HOME/miniforge3/etc/profile.d/conda.sh" ]; then
+              . "$HOME/miniforge3/etc/profile.d/conda.sh"
+          else
+              export PATH="$HOME/miniforge3/bin:$PATH"
+          fi
+      fi
+      unset __conda_setup
+      # <<< conda initialize <<<
+    marker: "# {mark} ANSIBLE MANAGED BLOCK"
+
+- name: Install JupyterLab using Mamba
+  command: /home/ubuntu/miniforge3/bin/mamba install -c conda-forge jupyterlab -y
+  environment:
+    HOME: "/home/ubuntu"
