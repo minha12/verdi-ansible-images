@@ -2,20 +2,20 @@
   hosts: localhost
   become: true
   roles:
-    #- download_image
-    #- configure_cloud_init_iso
-    #- create_vm
-    #- probing_vm
+    - download_image
+    - configure_cloud_init_iso
+    - create_vm
+    - probing_vm
 
 - name: Configure and Install Software on VM
   hosts: vm01
   become: true
   gather_facts: false
   roles:
-    #- install_xfce
-    #- install_vnc
-    #- install_miniforge
-    #- install_cuda
+    - install_xfce
+    - install_vnc
+    - install_miniforge
+    - install_cuda
 
 - name: Pack VM to OS Image
   hosts: localhost
