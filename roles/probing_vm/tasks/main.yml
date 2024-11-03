@@ -1,0 +1,17 @@
+- name: Wait for VM to become reachable
+  wait_for:
+    host: "{{ ip_address }}"
+    port: 22
+    state: started
+    delay: 5
+    timeout: 300
+
+- name: Remove existing known_hosts entry for the VM's IP address
+  command: ssh-keygen -f "$HOME/.ssh/known_hosts" -R "{{ ip_address }}"
+  ignore_errors: true
+
+- name: Set known_hosts for SSH
+  known_hosts:
+    name: "{{ ip_address }}"
+    key: "{{ lookup('pipe', 'ssh-keyscan -H ' + ip_address) }}"
+
