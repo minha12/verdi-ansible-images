@@ -10,8 +10,4 @@ users:
     lock_passwd: false
     ssh_authorized_keys:
       - "{{ lookup('file', '/home/ubuntu/.ssh/id_rsa.pub') }}"
-ssh_pwauth: true
-chpasswd:
-  list: |
-    {{ vm_username }}:{{ vm_password }}
-  expire: false
+ssh_pwauth: false
