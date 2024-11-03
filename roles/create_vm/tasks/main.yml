@@ -1,0 +1,29 @@
+- name: Create the VM image based on the downloaded image
+  command:
+    cmd: "qemu-img create -f qcow2 -F qcow2 -b /var/lib/libvirt/images/jammy-server-cloudimg-amd64.img /var/lib/libvirt/images/{{ vm_name }}.qcow2 {{ disk_size }}"
+  register: create_image_result
+
+- name: Create the VM using virt-install
+  command: >
+    virt-install --connect qemu:///system
+    --virt-type kvm
+    --name {{ vm_name }}
+    --ram {{ ram }}
+    --vcpus {{ vcpus }}
+    --os-variant ubuntu22.04
+    --disk path={{ vm_name }}.qcow2,device=disk
+    --disk path={{ vm_name }}-seed.qcow2,device=disk
+    --network network=default,model=virtio,mac={{ mac_address }}
+    --import
+    --noautoconsole
+  args:
+    chdir: /var/lib/libvirt/images/ # Set this to the directory where your disk images are located
+  register: virt_install_result
+
+- name: Debug virt-install result
+  debug:
+    var: virt_install_result
+- name: Start the VM after creation
+  community.libvirt.virt:
+    name: "{{ vm_name }}"
+    state: running  # Start the VM

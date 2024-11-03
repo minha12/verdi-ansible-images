@@ -1,0 +1,31 @@
+- name: Check if SSH public key exists
+  stat:
+    path: /home/ubuntu/.ssh/id_rsa.pub
+  register: ansible_stat
+
+- name: Generate SSH key if not present
+  openssh_keypair:
+    path: /home/ubuntu/.ssh/id_rsa
+    type: rsa
+    size: 2048
+  when: not ansible_stat.stat.exists
+
+- name: Create cloud-init network configuration
+  template:
+    src: network-config.j2
+    dest: "/tmp/{{ vm_name }}-network-config"
+
+- name: Create cloud-init user-data configuration
+  template:
+    src: user-data.j2
+    dest: "/tmp/{{ vm_name }}-user-data"
+
+- name: Create cloud-init meta-data configuration
+  template:
+    src: meta-data.j2
+    dest: "/tmp/{{ vm_name }}-meta-data"
+
+- name: Create cloud-init ISO
+  command:
+    cmd: "cloud-localds -v --network-config=/tmp/{{ vm_name }}-network-config /var/lib/libvirt/images/{{ vm_name }}-seed.qcow2 /tmp/{{ vm_name }}-user-data /tmp/{{ vm_name }}-meta-data"
+  register: cloud_init_result

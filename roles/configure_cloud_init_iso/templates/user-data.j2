@@ -1,0 +1,17 @@
+#cloud-config
+hostname: {{ vm_name }}
+manage_etc_hosts: true
+users:
+  - name: {{ vm_username }}
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: users, admin
+    home: /home/{{ vm_username }}
+    shell: /bin/bash
+    lock_passwd: false
+    ssh_authorized_keys:
+      - "{{ lookup('file', '/home/ubuntu/.ssh/id_rsa.pub') }}"
+ssh_pwauth: true
+chpasswd:
+  list: |
+    {{ vm_username }}:{{ vm_password }}
+  expire: false

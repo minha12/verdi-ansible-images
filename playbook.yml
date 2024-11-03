@@ -1,0 +1,18 @@
+- name: Deploy Ubuntu Cloud Image and Set Up VM
+  hosts: localhost
+  become: true
+  roles:
+    - download_image
+    - configure_cloud_init_iso
+    - create_vm
+  vars:
+    vm_name: "vm01"
+    interface: "ens3"
+    ip_address: "192.168.122.101"
+    ram: 4096
+    vcpus: 4
+    disk_size: "50G"
+    mac_address: "52:54:00:12:34:56"
+    vm_username: "ubuntu"
+    vm_password: "ubuntu"
+    download_image: true
