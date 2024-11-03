@@ -12,7 +12,7 @@
     ram: 4096
     vcpus: 4
     disk_size: "50G"
-    mac_address: "52:54:00:12:34:56"
+    mac_address: "52:54:00:10:9a:cd"
     vm_username: "ubuntu"
     vm_password: "ubuntu"
     download_image: true
