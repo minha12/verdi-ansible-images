@@ -11,16 +11,28 @@
     state: present
   become: true
 
-- name: Shutdown the VM
-  ansible.builtin.command: ssh {{ vm_username }}@{{ ip_address }} "sudo shutdown -h now"
-  ignore_errors: yes
+- name: Check if the VM is running
+  community.libvirt.virt:
+    command: list_vms
+    state: running
+  register: vms_info
+
+- name: Debug vms_info output
+  ansible.builtin.debug:
+    var: vms_info
+
+- name: Shutdown the VM if running
+  ansible.builtin.command: "virsh shutdown {{ vm_name }}"
+  when: vm_name in vms_info.list_vms
+  become: true
 
 - name: Wait for the VM to shut down
-  ansible.builtin.wait_for:
-    host: "{{ ip_address }}"
-    state: stopped
-    delay: 5
-    timeout: 300
+  ansible.builtin.shell: |
+    while ! virsh domstate {{ vm_name }} | grep -q 'shut off'; do
+      sleep 5;
+    done
+  become: true
+  delegate_to: localhost
 
 - name: Convert VM image to OS image
   ansible.builtin.command:
@@ -32,7 +44,8 @@
 - name: Sparsify the image
   ansible.builtin.command:
     cmd: >
-      virt-sparsify --compress
+      TMPDIR=/var/tmp virt-sparsify --compress
+      --check-tmpdir=continue
       /var/lib/libvirt/images/{{ ubuntu_release }}-server-cloudimg-nvidia.qcow2
       /var/lib/libvirt/images/{{ ubuntu_release }}-server-cloudimg-nvidia-sparsified.qcow2
   become: true

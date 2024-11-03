@@ -1,0 +1,12 @@
+# group_vars/all.yml
+vm_name: "vm01"
+interface: "ens3"
+ip_address: "192.168.122.101"
+ram: 4096
+vcpus: 4
+disk_size: "50G"
+mac_address: "52:54:00:10:9a:cd"
+vm_username: "ubuntu"
+vm_password: "ubuntu"
+download_image: true
+ubuntu_release: "jammy"
