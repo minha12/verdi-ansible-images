@@ -12,6 +12,7 @@
     vm_username: "ubuntu"
     vm_password: "ubuntu"
     download_image: true
+    ubuntu_release: "jammy"
   roles:
     - download_image
     - configure_cloud_init_iso
@@ -27,3 +28,9 @@
     - install_vnc
     - install_miniforge
     - install_cuda
+
+- name: Pack VM to OS Image
+  hosts: localhost
+  become: true
+  roles:
+    - pack_os_image

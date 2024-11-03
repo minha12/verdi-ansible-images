@@ -1,0 +1,42 @@
+# roles/pack_os_image/tasks/main.yml
+- name: Ensure qemu-img is installed
+  ansible.builtin.apt:
+    name: qemu-utils
+    state: present
+  become: true
+
+- name: Ensure virt-sparsify is installed
+  ansible.builtin.apt:
+    name: libguestfs-tools
+    state: present
+  become: true
+
+- name: Shutdown the VM
+  ansible.builtin.command: ssh {{ vm_username }}@{{ ip_address }} "sudo shutdown -h now"
+  ignore_errors: yes
+
+- name: Wait for the VM to shut down
+  ansible.builtin.wait_for:
+    host: "{{ ip_address }}"
+    state: stopped
+    delay: 5
+    timeout: 300
+
+- name: Convert VM image to OS image
+  ansible.builtin.command:
+    cmd: >
+      qemu-img convert -O qcow2 /var/lib/libvirt/images/{{ vm_name }}.qcow2
+      /var/lib/libvirt/images/{{ ubuntu_release }}-server-cloudimg-nvidia.qcow2
+  become: true
+
+- name: Sparsify the image
+  ansible.builtin.command:
+    cmd: >
+      virt-sparsify --compress
+      /var/lib/libvirt/images/{{ ubuntu_release }}-server-cloudimg-nvidia.qcow2
+      /var/lib/libvirt/images/{{ ubuntu_release }}-server-cloudimg-nvidia-sparsified.qcow2
+  become: true
+
+- name: Inform the image packaging is completed
+  ansible.builtin.debug:
+    msg: "Image packaging completed. Output image: /var/lib/libvirt/images/{{ ubuntu_release }}-server-cloudimg-nvidia-sparsified.qcow2"
