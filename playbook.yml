@@ -10,11 +10,11 @@
 - name: Configure and Install Software on VM
   hosts: vm01
   become: true
-  gather_facts: false
+  gather_facts: true
   roles:
-    - install_xfce
-    - install_vnc
-    - install_miniforge
+#    - install_xfce
+#    - install_vnc
+#    - install_miniforge
     - install_cuda
 
 - name: Pack VM to OS Image
@@ -22,4 +22,4 @@
   become: true
   gather_facts: true
   roles:
-    - pack_os_image
+    #- pack_os_image

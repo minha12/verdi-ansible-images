@@ -10,7 +10,7 @@
     --name {{ vm_name }}
     --ram {{ ram }}
     --vcpus {{ vcpus }}
-    --os-variant ubuntu22.04
+    --os-variant {{ os_variant }}
     --disk path={{ vm_name }}.qcow2,device=disk
     --disk path={{ vm_name }}-seed.qcow2,device=disk
     --network network=default,model=virtio,mac={{ mac_address }}

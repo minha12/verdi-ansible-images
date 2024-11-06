@@ -1,23 +1,29 @@
 - name: Add NVIDIA package repository key
-  get_url:
-    url: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb
+  ansible.builtin.get_url:
+    url: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
     dest: /tmp/cuda-keyring.deb
 
-- name: Install CUDA keyring package
-  apt:
+- name: Install CUDA keyring package using dpkg
+  ansible.builtin.apt:
     deb: /tmp/cuda-keyring.deb
     state: present
+    force: yes  # Optional - Ensures the package gets installed even if dependencies are not met
 
 - name: Update apt repository cache
-  apt:
+  ansible.builtin.apt:
     update_cache: yes
 
+- name: Install NVIDIA drivers
+  ansible.builtin.apt:
+    name: cuda-drivers
+    state: present
+
 - name: Install CUDA Toolkit
-  apt:
-    name: cuda-toolkit-12-4
+  ansible.builtin.apt:
+    name: cuda-toolkit-12-6
     state: present
 
 - name: Remove temporary CUDA keyring package
-  file:
+  ansible.builtin.file:
     path: /tmp/cuda-keyring.deb
     state: absent

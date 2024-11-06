@@ -34,6 +34,16 @@
   become: true
   delegate_to: localhost
 
+- name: Clean up the VM image using virt-sysprep
+  ansible.builtin.command:
+    cmd: "virt-sysprep -d {{ vm_name }}"
+  become: true
+
+- name: Undefine the VM in libvirt
+  ansible.builtin.command:
+    cmd: "virsh undefine {{ vm_name }}"
+  become: true
+
 - name: Convert VM image to OS image
   ansible.builtin.command:
     cmd: >
@@ -44,8 +54,7 @@
 - name: Sparsify the image
   ansible.builtin.command:
     cmd: >
-      TMPDIR=/var/tmp virt-sparsify --compress
-      --check-tmpdir=continue
+      virt-sparsify --compress
       /var/lib/libvirt/images/{{ ubuntu_release }}-server-cloudimg-nvidia.qcow2
       /var/lib/libvirt/images/{{ ubuntu_release }}-server-cloudimg-nvidia-sparsified.qcow2
   become: true
