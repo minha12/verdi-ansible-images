@@ -9,5 +9,5 @@ users:
     shell: /bin/bash
     lock_passwd: false
     ssh_authorized_keys:
-      - "{{ lookup('file', '/home/ubuntu/.ssh/id_rsa.pub') }}"
+      - "{{ lookup('file', '{{ user_home.stdout }}/.ssh/id_rsa.pub') }}"
 ssh_pwauth: false

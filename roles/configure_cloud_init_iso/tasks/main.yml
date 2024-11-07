@@ -1,14 +1,21 @@
-- name: Check if SSH public key exists
+- name: Get current (non-root) user's home directory
+  command: echo $HOME
+  register: user_home
+  changed_when: false
+  become: false
+
+- name: Check if SSH public key exists (for non-root user)
   stat:
-    path: /home/ubuntu/.ssh/id_rsa.pub
-  register: ansible_stat
+    path: "{{ user_home.stdout }}/.ssh/id_rsa.pub"
+  register: ssh_key_stat
+  become: false
 
 - name: Generate SSH key if not present
   openssh_keypair:
-    path: /home/ubuntu/.ssh/id_rsa
+    path: "{{ user_home.stdout  }}/.ssh/id_rsa"
     type: rsa
     size: 2048
-  when: not ansible_stat.stat.exists
+  when: not ssh_key_stat.stat.exists
 
 - name: Create cloud-init network configuration
   template:
@@ -19,6 +26,7 @@
   template:
     src: user-data.j2
     dest: "/tmp/{{ vm_name }}-user-data"
+  become: false
 
 - name: Create cloud-init meta-data configuration
   template:

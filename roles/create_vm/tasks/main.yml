@@ -15,6 +15,7 @@
     --disk path={{ vm_name }}-seed.qcow2,device=disk
     --network network=default,model=virtio,mac={{ mac_address }}
     --import
+    --host-device 01:00.0 --features kvm_hidden=on
     --noautoconsole
   args:
     chdir: /var/lib/libvirt/images/ # Set this to the directory where your disk images are located

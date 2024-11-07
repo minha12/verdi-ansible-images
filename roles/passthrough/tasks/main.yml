@@ -17,7 +17,7 @@
     dest: "/etc/modprobe.d/gpu-passthrough.conf"
     content: |
       # Ansible managed, don't edit here
-      options vfio-pci ids=10de:26b9,10de:27b8
+      options vfio-pci ids=10de:1f11,10de:10f9,10de:1ada,10de:1adb, 8086:1901
 
     mode: "0o644"
     group: root
@@ -34,6 +34,6 @@
     group: root
     owner: root
 
-- name: Reboot the system
-  ansible.builtin.reboot:
-    reboot_timeout: 600
+- name: Notify about manual reboot
+  ansible.builtin.debug:
+    msg: "Please reboot the system manually. Run 'sudo reboot'."

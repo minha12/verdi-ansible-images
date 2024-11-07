@@ -10,6 +10,7 @@
   command: ssh-keygen -f "$HOME/.ssh/known_hosts" -R "{{ ip_address }}"
   ignore_errors: true
   delegate_to: localhost
+  become: false
 
 - name: Set known_hosts for SSH
   known_hosts:
@@ -17,3 +18,4 @@
     name: "{{ ip_address }}"
     key: "{{ lookup('pipe', 'ssh-keyscan -H ' + ip_address) }}"
   delegate_to: localhost
+  become: false
