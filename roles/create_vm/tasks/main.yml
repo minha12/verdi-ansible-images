@@ -1,6 +1,6 @@
 - name: Create the VM image based on the downloaded image
   command:
-    cmd: "qemu-img create -f qcow2 -F qcow2 -b /var/lib/libvirt/images/jammy-server-cloudimg-amd64.img /var/lib/libvirt/images/{{ vm_name }}.qcow2 {{ disk_size }}"
+    cmd: "qemu-img create -f qcow2 -F qcow2 -b /var/lib/libvirt/images/{{ ubuntu_release }}-server-cloudimg-amd64.img /var/lib/libvirt/images/{{ vm_name }}.qcow2 {{ disk_size }}"
   register: create_image_result
 
 - name: Create the VM using virt-install

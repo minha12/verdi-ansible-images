@@ -1,7 +1,7 @@
 vm_name: "vm"
 vm_username: "ubuntu"
 interface: "ens3"
-ip_address: "192.168.2.2"
+ip_address: "192.168.122.4"
 ram: 4096
 vcpus: 4
 disk_size: "70G"

@@ -8,7 +8,7 @@
     - probing_vm
 
 - name: Configure and Install Software on VM
-  hosts: vm01
+  hosts: vm
   become: true
   gather_facts: true
   roles:
