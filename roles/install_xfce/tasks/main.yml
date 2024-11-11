@@ -1,9 +1,9 @@
 - name: Update package list
-  apt:
-    update_cache: yes
+  ansible.builtin.apt:
+    update_cache: true
 
 - name: Install XFCE desktop environment
-  apt:
+  ansible.builtin.apt:
     name:
       - xfce4
       - xfce4-goodies

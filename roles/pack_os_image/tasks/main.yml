@@ -25,24 +25,29 @@
   ansible.builtin.command: "virsh shutdown {{ vm_name }}"
   when: vm_name in vms_info.list_vms
   become: true
+  changed_when: vm_name in vms_info.vms
 
 - name: Wait for the VM to shut down
   ansible.builtin.shell: |
+    set -o pipefail
     while ! virsh domstate {{ vm_name }} | grep -q 'shut off'; do
       sleep 5;
     done
   become: true
   delegate_to: localhost
+  changed_when: false
 
 - name: Clean up the VM image using virt-sysprep
   ansible.builtin.command:
     cmd: "virt-sysprep -d {{ vm_name }}"
   become: true
+  changed_when: false
 
 - name: Undefine the VM in libvirt
   ansible.builtin.command:
     cmd: "virsh undefine {{ vm_name }}"
   become: true
+  changed_when: false
 
 - name: Convert VM image to OS image
   ansible.builtin.command:
@@ -50,6 +55,7 @@
       qemu-img convert -O qcow2 /var/lib/libvirt/images/{{ vm_name }}.qcow2
       /var/lib/libvirt/images/{{ ubuntu_release }}-server-cloudimg-nvidia.qcow2
   become: true
+  changed_when: false
 
 - name: Sparsify the image
   ansible.builtin.command:
@@ -58,6 +64,7 @@
       /var/lib/libvirt/images/{{ ubuntu_release }}-server-cloudimg-nvidia.qcow2
       /var/lib/libvirt/images/{{ ubuntu_release }}-server-cloudimg-nvidia-sparsified.qcow2
   become: true
+  changed_when: false
 
 - name: Inform the image packaging is completed
   ansible.builtin.debug:

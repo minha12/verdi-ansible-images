@@ -1,28 +1,34 @@
 - name: Check if Miniforge is already installed
-  stat:
+  ansible.builtin.stat:
     path: "$HOME/miniforge3"
   environment:
     HOME: "/home/ubuntu"
   register: miniforge_installed
 
 - name: Print the Miniforge download URL for debugging
-  debug:
+  ansible.builtin.debug:
     msg: "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-{{ ansible_system | lower }}-{{ ansible_architecture }}.sh"
 
 - name: Download Miniforge installer
-  get_url:
-    #url: "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
-    url: "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-{{ ansible_system | lower }}-{{ ansible_architecture }}.sh" 
+  ansible.builtin.get_url:
+    url: "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-{{ ansible_system | lower }}-{{ ansible_architecture }}.sh"
     dest: /tmp/Miniforge3.sh
+    mode: '0644'
+
+- name: Check if Miniforge is installed
+  ansible.builtin.stat:
+    path: "/home/ubuntu/miniforge3"
+  register: miniforge_installed
 
 - name: Install Miniforge
-  command: bash /tmp/Miniforge3.sh -b -p $HOME/miniforge3
+  ansible.builtin.command: bash /tmp/Miniforge3.sh -b -p $HOME/miniforge3
   environment:
     HOME: "/home/ubuntu"
   when: not miniforge_installed.stat.exists
+  changed_when: not miniforge_installed.stat.exists
 
 - name: Update .bashrc to initialize Conda
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: /home/ubuntu/.bashrc
     block: |
       # >>> conda initialize >>>
@@ -41,7 +47,16 @@
       # <<< conda initialize <<<
     marker: "# {mark} ANSIBLE MANAGED BLOCK"
 
+- name: Check if JupyterLab is installed
+  ansible.builtin.command:
+    cmd: /home/ubuntu/miniforge3/bin/jupyter-lab --version
+  register: jupyterlab_installed
+  failed_when: false
+  changed_when: false
+
 - name: Install JupyterLab using Mamba
-  command: /home/ubuntu/miniforge3/bin/mamba install -c conda-forge jupyterlab -y
+  ansible.builtin.command: /home/ubuntu/miniforge3/bin/mamba install -c conda-forge jupyterlab -y
   environment:
     HOME: "/home/ubuntu"
+  when: jupyterlab_installed.rc != 0
+  changed_when: jupyterlab_installed.rc != 0

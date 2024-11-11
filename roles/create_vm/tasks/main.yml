@@ -1,10 +1,26 @@
-- name: Create the VM image based on the downloaded image
-  command:
-    cmd: "qemu-img create -f qcow2 -F qcow2 -b /var/lib/libvirt/images/{{ ubuntu_release }}-server-cloudimg-amd64.img /var/lib/libvirt/images/{{ vm_name }}.qcow2 {{ disk_size }}"
+- name: Check if VM image already exists
+  ansible.builtin.stat:
+    path: "/var/lib/libvirt/images/{{ vm_name }}.qcow2"
+  register: image_stat
+
+- name: Create the VM image based on the downloaded image if it doesn't exist
+  ansible.builtin.command:
+    cmd: >
+      qemu-img create -f qcow2 -F qcow2
+      -b /var/lib/libvirt/images/{{ ubuntu_release }}-server-cloudimg-amd64.img
+      /var/lib/libvirt/images/{{ vm_name }}.qcow2
+      {{ disk_size }}
+  when: not image_stat.stat.exists
   register: create_image_result
+  changed_when: vm_image_stat.stat.exists == false
+
+- name: Check if the VM already exists
+  community.libvirt.virt:
+    command: list_vms
+  register: virt_vms
 
 - name: Create the VM using virt-install
-  command: >
+  ansible.builtin.command: >
     virt-install --connect qemu:///system
     --virt-type kvm
     --name {{ vm_name }}
@@ -20,9 +36,11 @@
   args:
     chdir: /var/lib/libvirt/images/ # Set this to the directory where your disk images are located
   register: virt_install_result
+  when: vm_name not in virt_vms.vms
+  changed_when: vm_name not in virt_vms.vms
 
 - name: Debug virt-install result
-  debug:
+  ansible.builtin.debug:
     var: virt_install_result
 - name: Start the VM after creation
   community.libvirt.virt:

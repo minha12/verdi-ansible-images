@@ -1,19 +1,28 @@
 - name: Wait for VM to become reachable
-  wait_for:
+  ansible.builtin.wait_for:
     host: "{{ ip_address }}"
     port: 22
     state: started
     delay: 5
     timeout: 300
 
-- name: Remove existing known_hosts entry for the VM's IP address
-  command: ssh-keygen -f "$HOME/.ssh/known_hosts" -R "{{ ip_address }}"
-  ignore_errors: true
+- name: Check if the IP address is already present in known_hosts
+  ansible.builtin.shell: 'ssh-keygen -F "{{ ip_address }}" -f "$HOME/.ssh/known_hosts"'
   delegate_to: localhost
   become: false
+  register: known_host_check
+  changed_when: false
+
+- name: Remove existing known_hosts entry for the VM's IP address
+  ansible.builtin.command: ssh-keygen -f "$HOME/.ssh/known_hosts" -R "{{ ip_address }}"
+  delegate_to: localhost
+  become: false
+  when: known_host_check.rc == 0
+  register: remove_known_host
+  changed_when: remove_known_host.rc == 0
 
 - name: Set known_hosts for SSH
-  known_hosts:
+  ansible.builtin.known_hosts:
     path: "{{ lookup('env', 'HOME') + '/.ssh/known_hosts' }}"
     name: "{{ ip_address }}"
     key: "{{ lookup('pipe', 'ssh-keyscan -H ' + ip_address) }}"

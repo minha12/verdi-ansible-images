@@ -13,6 +13,7 @@
   become: true
   gather_facts: true
   roles:
+    - docker
     - install_xfce
     - install_vnc
     - install_miniforge

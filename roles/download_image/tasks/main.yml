@@ -1,5 +1,5 @@
 - name: Ensure image directory exists
-  file:
+  ansible.builtin.file:
     path: /var/lib/libvirt/images
     state: directory
     owner: libvirt-qemu
@@ -7,14 +7,15 @@
     mode: '0755'
 
 - name: Download Ubuntu cloud image
-  get_url:
+  ansible.builtin.get_url:
     url: "https://cloud-images.ubuntu.com/{{ ubuntu_release }}/current/{{ ubuntu_release }}-server-cloudimg-amd64.img"
     dest: "/var/lib/libvirt/images/{{ ubuntu_release }}-server-cloudimg-amd64.img"
-    use_proxy: yes
+    use_proxy: true
+    mode: '0644'
   when: download_image | default(true)
 
 - name: Set permissions for the image
-  file:
+  ansible.builtin.file:
     path: "/var/lib/libvirt/images/{{ ubuntu_release }}-server-cloudimg-amd64.img"
     owner: libvirt-qemu
     group: kvm

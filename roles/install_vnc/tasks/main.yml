@@ -1,16 +1,16 @@
 - name: Install TightVNC server
-  apt:
+  ansible.builtin.apt:
     name: tightvncserver
     state: present
 
 - name: Create VNC directory structure
-  file:
+  ansible.builtin.file:
     path: "/home/ubuntu/.vnc"
     state: directory
     mode: '0700'
 
 - name: Copy initial xstartup file for VNC
-  copy:
+  ansible.builtin.copy:
     dest: "/home/ubuntu/.vnc/xstartup"
     content: |
       #!/bin/sh
